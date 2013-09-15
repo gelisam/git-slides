@@ -7,3 +7,6 @@
 ############################################################
 
 #                 this is an ordinary file.
+
+# I can write code in it:
+seq 100 | grep '5$'
