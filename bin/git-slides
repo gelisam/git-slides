@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+function usage {
+  echo "usage:"
+  echo "  $0 next [-f|--force]"
+  echo "  $0 prev [-f|--force]"
+  echo "  $0 hint"
+  echo ""
+  echo "Move forwards or backwards through the git history."
+  echo "Use --force to do so even if the files have been changed."
+  echo ""
+  echo "Hint mode reminds you what the current slide is about,"
+  echo "by showing you the speaker notes (in the commit message)"
+  echo "and what has changed."
+}
+
+# "commit 12345" => "12345"
+function cut_commit {
+  cut -d' ' -f2
+}
+
+function current_commit {
+  git log HEAD | head -n1 | cut_commit
+}
+
+function commits {
+  git log master | grep '^commit'
+}
+
+function next_commit {
+  local CURRENT="$(current_commit)"
+  commits | grep -B1 "^commit $CURRENT" | head -n1 | cut_commit
+}
+
+function prev_commit {
+  local CURRENT="$(current_commit)"
+  commits | grep -A1 "^commit $CURRENT" | tail -n1 | cut_commit
+}
+
+function move_to {
+  if [ "$2" = "-f" ] || [ "$2" = "--force" ]; then
+    git reset --hard
+  fi
+  git checkout "$1"
+}
+
+if [ "$1" = "next" ]; then
+  move_to "$(next_commit)" "$2"
+elif [ "$1" = "prev" ]; then
+  move_to "$(prev_commit)" "$2"
+elif [ "$1" = "hint" ]; then
+  git show HEAD
+else
+  usage
+  exit 1
+fi
