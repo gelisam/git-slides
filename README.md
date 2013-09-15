@@ -1,22 +1,15 @@
-git-slides
-==========
+example slides
+==============
 
-Text-based slides using vim and git.
+Warning! Even though this branch is public,
+its git history is likely to get rewritten.
 
-![Screencast](demo.gif)
+This is because each slide is a git commit, so
+editing the slides requires rewriting history!
 
-Overview
---------
+example
+-------
 
-Abuse git's history rewriting mechanism by creating one commit for each slide.
-
-Within vim, press Space and Backspace (in normal mode) to move forwards and backwards.
-
-Especially useful for live demos with a lot of canned code, which you want to present and run incrementally.
-
-
-Installation
-------------
-
-Copy `vim/plugin/git-slides.vim` to your `~/.vim/plugin`
-folder, and put `bin/git-slides` somewhere on your path.
+The actual slides are in the git history of the
+file "example.sh". Install the vim plugin, open
+"example.sh", and follow the on-screen instructions.
