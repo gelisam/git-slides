@@ -8,3 +8,4 @@
 
 #                   this is also a slide.
 #                   * Space moves forwards
+#                   * Backspace moves back
