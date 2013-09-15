@@ -3,9 +3,12 @@
 ############################################################
 #                                                          #
 #                        git-slides                        #
-#                                                          #
+#                       (bonus slide)                      #
 ############################################################
 
-#           your live demo has never been easier.
-#
-#                         THE END
+# this is the last slide.
+# 
+# start from the beginning:
+git checkout slide0
+echo "install the vim plugin, open example.sh,"
+echo "and press spacebar to begin."
