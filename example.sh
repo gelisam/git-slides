@@ -7,3 +7,6 @@
 ############################################################
 
 #                  this is also a commit.
+
+# try this:
+git diff HEAD^
