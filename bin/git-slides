@@ -24,8 +24,22 @@ function current_commit {
   git log HEAD | head -n1 | cut_commit
 }
 
+function branches {
+  git branch | cut -c3-
+}
+
+function current_branch {
+  local CURRENT="$(current_commit)"
+  for BRANCH in `branches`; do
+    if [ "$(git log "$BRANCH" | grep "^commit $CURRENT")" ]; then
+      echo "$BRANCH"
+      break
+    fi
+  done
+}
+
 function commits {
-  git log master | grep '^commit'
+  git log "$(current_branch)" | grep '^commit'
 }
 
 function next_commit {
