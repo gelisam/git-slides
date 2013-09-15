@@ -8,5 +8,5 @@
 
 #                 this is an ordinary file.
 
-# I can write code in it:
+# I can run code in it:
 seq 100 | grep '5$'
