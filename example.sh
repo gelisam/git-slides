@@ -6,7 +6,4 @@
 #                                                          #
 ############################################################
 
-#                 this is an ordinary file.
-
-# I can modify it:
-seq 100 | grep '5$'
+#                   this is also a slide.
