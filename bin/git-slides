@@ -5,14 +5,25 @@ function usage {
   echo "usage:"
   echo "  $0 next [-f|--force]"
   echo "  $0 prev [-f|--force]"
-  echo "  $0 hint"
+  echo "  $0 save"
+  echo "  $0 insert [msg]"
+  echo "  $0 delete"
+  echo "  $0 transform"
   echo ""
   echo "Move forwards or backwards through the git history."
   echo "Use --force to do so even if the files have been changed."
   echo ""
-  echo "Hint mode reminds you what the current slide is about,"
-  echo "by showing you the speaker notes (in the commit message)"
-  echo "and what has changed."
+  echo "To modify a slide, simply move to that slide and edit it."
+  echo "Then use 'save' to commit the state of the slide into git."
+  echo "'insert' is a variant which inserts the slide after the one"
+  echo "it was modified from, while 'delete' removes the current"
+  echo "slide. All commands rewrite the history of all the slides"
+  echo "which come afterwards."
+  echo ""
+  echo "'transform' is a special version of 'save' which tries to"
+  echo "apply the change to all future slides. This is likely to"
+  echo "cause rebasing conflicts, which you are responsible for"
+  echo "resolving."
 }
 
 # "commit 12345" => "12345"
@@ -59,12 +70,120 @@ function move_to {
   git checkout "$1"
 }
 
+function next {
+  move_to "$(next_commit)"
+}
+
+function prev {
+  move_to "$(prev_commit)"
+}
+
+function duplicate {
+  local MSG="$1"
+  local BRANCH="$(current_branch)"
+  local CURRENT="$(current_commit)"
+  
+  # duplicate $CURRENT
+  git commit --allow-empty -m "$MSG"
+  local DUP="$(current_commit)"
+  
+  # rewrite history to include $DUP.
+  git rebase "$DUP" "$BRANCH"
+  
+  # move to this new commit (whose SHA1 is no longer $DUP)
+  git checkout "$CURRENT"
+  next
+}
+
+# rewrite history so that the current commit is followed by $FUTURE,
+# then the rest of $BRANCH. $FUTURE must already belong to $BRANCH.
+function rewrite_history {
+  local FUTURE="$1"
+  local BRANCH="$2"
+  
+  # force rebase to succeed by duplicating $FUTURE.
+  git reset "$FUTURE" -- . || true
+  git commit --reuse-message="$FUTURE"
+  git reset --hard
+  local DUP="$(current_commit)"
+  
+  # rewrite history to include $DUP instead of $FUTURE.
+  git rebase --onto "$DUP" "$NEXT" "$BRANCH"
+}
+
+function save {
+  local BRANCH="$(current_branch)"
+  local OLD="$(current_commit)"
+  local NEXT="$(next_commit)"
+  git commit -a --amend --reuse-message="$OLD"
+  local NEW="$(current_commit)"
+  
+  if [ "$NEXT" != "$OLD" ]; then
+    # rewrite history to include $NEW instead of $OLD.
+    rewrite_history "$NEXT" "$BRANCH"
+    
+    # move to the saved commit.
+    git checkout "$NEW"
+  fi
+}
+
+function insert {
+  local MSG="$1"
+  local BRANCH="$(current_branch)"
+  local PREV="$(current_commit)"
+  local NEXT="$(next_commit)"
+  git commit -a -m "$MSG"
+  local NEW="$(current_commit)"
+  
+  if [ "$NEXT" != "$PREV" ]; then
+    # rewrite history to include $NEW.
+    rewrite_history "$NEXT" "$BRANCH"
+    
+    # move to the inserted commit.
+    git checkout "$NEW"
+  fi
+}
+
+function delete {
+  local BRANCH="$(current_branch)"
+  local PREV="$(prev_commit)"
+  local NEXT="$(next_commit)"
+  
+  # rewrite history to include $PREV and $NEXT, but not the current commit.
+  git checkout "$PREV"
+  rewrite_history "$NEXT" "$BRANCH"
+  
+  # move to the commit before the one we deleted.
+  git checkout "$PREV"
+}
+
+function transform {
+  local BRANCH="$(current_branch)"
+  local OLD="$(current_commit)"
+  git commit -a --amend --reuse-message="$OLD"
+  local NEW="$(current_commit)"
+  
+  # unsafe version of rewrite_history, which will
+  # propagate the changes forward and probably cause conflicts.
+  git rebase --onto "$NEW" "$OLD" "$BRANCH"
+}
+
 if [ "$1" = "next" ]; then
   move_to "$(next_commit)" "$2"
 elif [ "$1" = "prev" ]; then
   move_to "$(prev_commit)" "$2"
-elif [ "$1" = "hint" ]; then
-  git show HEAD
+elif [ "$1" = "save" ]; then
+  save
+elif [ "$1" = "insert" ]; then
+  if [ "$2" ]; then
+    insert "$2"
+  else
+    insert "new slide"
+  fi
+elif [ "$1" = "delete" ]; then
+  delete
+elif [ "$1" = "transform" ]; then
+  transform
 else
   usage
   exit 1
