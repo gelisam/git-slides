@@ -1,2 +1,2 @@
-:nmap <Space> :!git-slides next<CR>:e!<CR>
-:nmap <Backspace> :!git-slides prev<CR>:e!<CR>
+:nmap <Space> :call system("git-slides next")<CR>:e!<CR>
+:nmap <Backspace> :call system("git-slides prev")<CR>:e!<CR>
