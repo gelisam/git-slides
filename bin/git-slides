@@ -25,7 +25,7 @@ function current_commit {
 }
 
 function branches {
-  git branch | cut -c3-
+  git branch | grep -v '(no branch)' | cut -c3-
 }
 
 function current_branch {
