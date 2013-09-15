@@ -6,7 +6,6 @@
 #                                                          #
 ############################################################
 
-#                  this is also a commit.
-
-# try this:
-git diff HEAD^
+#           your live demo has never been easier.
+#
+#                         THE END
