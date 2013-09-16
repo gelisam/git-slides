@@ -53,6 +53,10 @@ function commits {
   git log "$(current_branch)" | grep '^commit'
 }
 
+function current_tip {
+  commits | head -n1 | cut_commit
+}
+
 function next_commit {
   local CURRENT="$(current_commit)"
   commits | grep -B1 "^commit $CURRENT" | head -n1 | cut_commit
@@ -67,7 +71,11 @@ function move_to {
   if [ "$2" = "-f" ] || [ "$2" = "--force" ]; then
     git reset --hard
   fi
-  git checkout "$1"
+  if [ "$1" = "$(current_tip)" ]; then
+    git checkout "$(current_branch)"
+  else
+    git checkout "$1"
+  fi
 }
 
 function next {
