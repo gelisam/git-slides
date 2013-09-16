@@ -91,7 +91,7 @@ function duplicate {
   git rebase "$DUP" "$BRANCH"
   
   # move to this new commit (whose SHA1 is no longer $DUP)
-  git checkout "$CURRENT"
+  git checkout -f "$CURRENT"
   next
 }
 
@@ -123,7 +123,7 @@ function save {
     rewrite_history "$NEXT" "$BRANCH"
     
     # move to the saved commit.
-    git checkout "$NEW"
+    git checkout -f "$NEW"
   fi
 }
 
@@ -140,7 +140,7 @@ function insert {
     rewrite_history "$NEXT" "$BRANCH"
     
     # move to the inserted commit.
-    git checkout "$NEW"
+    git checkout -f "$NEW"
   fi
 }
 
@@ -150,11 +150,11 @@ function delete {
   local NEXT="$(next_commit)"
   
   # rewrite history to include $PREV and $NEXT, but not the current commit.
-  git checkout "$PREV"
+  git checkout -f "$PREV"
   rewrite_history "$NEXT" "$BRANCH"
   
   # move to the commit before the one we deleted.
-  git checkout "$PREV"
+  git checkout -f "$PREV"
 }
 
 function transform {
