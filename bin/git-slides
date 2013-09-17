@@ -21,9 +21,8 @@ function usage {
   echo "which come afterwards."
   echo ""
   echo "'transform' is a special version of 'save' which tries to"
-  echo "apply the change to all future slides. This is likely to"
-  echo "cause rebasing conflicts, which you are responsible for"
-  echo "resolving."
+  echo "apply the change to all future slides, stopping at the"
+  echo "first conflict."
 }
 
 # "commit 12345" => "12345"
@@ -173,7 +172,17 @@ function transform {
   
   # unsafe version of rewrite_history, which will
   # propagate the changes forward and probably cause conflicts.
-  git rebase --onto "$NEW" "$OLD" "$BRANCH"
+  if ! git rebase --onto "$NEW" "$OLD" "$BRANCH"; then
+    # resolve conflicts by ignoring "our" changes,
+    # thereby stopping their propagation.
+    git checkout --theirs .
+    git add -u
+    local STOP="$(current_commit)"
+    git rebase --continue
+    
+    # move to the last successfully-modified commit.
+    git checkout -f "$STOP"
+  fi
 }
 
 if [ "$1" = "next" ]; then
