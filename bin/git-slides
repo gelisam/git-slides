@@ -152,16 +152,20 @@ function insert {
 }
 
 function delete {
-  local BRANCH="$(current_branch)"
-  local PREV="$(prev_commit)"
-  local NEXT="$(next_commit)"
-  
-  # rewrite history to include $PREV and $NEXT, but not the current commit.
-  git checkout -f "$PREV"
-  rewrite_history "$NEXT" "$BRANCH"
-  
-  # move to the commit before the one we deleted.
-  git checkout -f "$PREV"
+  if [ "$(current_commit)" = "$(current_tip)" ]; then
+    git reset --hard HEAD^
+  else
+    local BRANCH="$(current_branch)"
+    local PREV="$(prev_commit)"
+    local NEXT="$(next_commit)"
+    
+    # rewrite history to include $PREV and $NEXT, but not the current commit.
+    git checkout -f "$PREV"
+    rewrite_history "$NEXT" "$BRANCH"
+    
+    # move to the commit before the one we deleted.
+    git checkout -f "$PREV"
+  fi
 }
 
 function transform {
