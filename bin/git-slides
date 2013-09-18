@@ -195,6 +195,7 @@ function transform {
     # resolve conflicts by ignoring "our" changes,
     # thereby stopping their propagation.
     git status | grep "^#	deleted by them:" | cut -d':' -f2 | xargs git rm -f
+    git status | grep "^#	added by us:" | cut -d':' -f2 | xargs git rm -f
     git checkout --theirs .
     git add -u
     local STOP="$(current_commit)"
