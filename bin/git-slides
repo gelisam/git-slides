@@ -179,6 +179,7 @@ function transform {
   if ! git rebase --onto "$NEW" "$OLD" "$BRANCH"; then
     # resolve conflicts by ignoring "our" changes,
     # thereby stopping their propagation.
+    git status | grep "^#	deleted by them:" | cut -d':' -f2 | xargs git rm -f
     git checkout --theirs .
     git add -u
     local STOP="$(current_commit)"
