@@ -211,7 +211,7 @@ elif [ "$1" = "prev" ]; then
   move_to "$(prev_commit)" "$2"
 elif [ "$1" = "save" ]; then
   save
-elif [ "$1" = "insert" ] || [ "$1" = "insert-after"; then
+elif [ "$1" = "insert" ] || [ "$1" = "insert-after" ]; then
   if [ "$2" ]; then
     insert_after "$2"
   else
