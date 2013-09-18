@@ -139,7 +139,7 @@ function insert {
   local BRANCH="$(current_branch)"
   local PREV="$(current_commit)"
   local NEXT="$(next_commit)"
-  git commit -a -m "$MSG"
+  git commit -a --allow-empty -m "$MSG"
   local NEW="$(current_commit)"
   
   if [ "$NEXT" != "$PREV" ]; then
