@@ -5,6 +5,7 @@
 :nmap sL :call system("git-slides next -f")<CR>:e!<CR>
 :nmap sH :call system("git-slides prev -f")<CR>:e!<CR>
 :nmap ss :wa<CR>:call system("git-slides save")<CR>:e!<CR>
-:nmap si :wa<CR>:call system("git-slides insert")<CR>:e!<CR>
+:nmap sb :wa<CR>:call system("git-slides insert-before")<CR>:e!<CR>
+:nmap sa :wa<CR>:call system("git-slides insert-after")<CR>:e!<CR>
 :nmap st :wa<CR>:call system("git-slides transform")<CR>:e!<CR>
 :nmap sx :wa<CR>:call system("git-slides delete")<CR>:e!<CR>

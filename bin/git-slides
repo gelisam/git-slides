@@ -7,6 +7,7 @@ function usage {
   echo "  $0 prev [-f|--force]"
   echo "  $0 save"
   echo "  $0 insert [msg]"
+  echo "  $0 insert-before [msg]"
   echo "  $0 delete"
   echo "  $0 transform"
   echo ""
@@ -115,7 +116,7 @@ function rewrite_history {
   local DUP="$(current_commit)"
   
   # rewrite history to include $DUP instead of $FUTURE.
-  git rebase --onto "$DUP" "$NEXT" "$BRANCH"
+  git rebase --onto "$DUP" "$FUTURE" "$BRANCH"
 }
 
 function save {
@@ -134,7 +135,21 @@ function save {
   fi
 }
 
-function insert {
+function insert_before {
+  local MSG="$1"
+  local BRANCH="$(current_branch)"
+  local PREV="$(current_commit)"
+  git commit -a --amend --allow-empty -m "$MSG"
+  local NEW="$(current_commit)"
+  
+  # rewrite history to include $NEW.
+  rewrite_history "$PREV" "$BRANCH"
+  
+  # move to the inserted commit.
+  git checkout -f "$NEW"
+}
+
+function insert_after {
   local MSG="$1"
   local BRANCH="$(current_branch)"
   local PREV="$(current_commit)"
@@ -196,11 +211,17 @@ elif [ "$1" = "prev" ]; then
   move_to "$(prev_commit)" "$2"
 elif [ "$1" = "save" ]; then
   save
-elif [ "$1" = "insert" ]; then
+elif [ "$1" = "insert" ] || [ "$1" = "insert-after"; then
   if [ "$2" ]; then
-    insert "$2"
+    insert_after "$2"
   else
-    insert "new slide"
+    insert_after "new slide"
+  fi
+elif [ "$1" = "insert-before" ]; then
+  if [ "$2" ]; then
+    insert_before "$2"
+  else
+    insert_before "new slide"
   fi
 elif [ "$1" = "delete" ]; then
   delete
