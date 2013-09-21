@@ -123,7 +123,7 @@ function save {
   local BRANCH="$(current_branch)"
   local OLD="$(current_commit)"
   local NEXT="$(next_commit)"
-  git commit -a --amend --reuse-message="$OLD"
+  git commit -a --amend --allow-empty --reuse-message="$OLD"
   local NEW="$(current_commit)"
   
   if [ "$NEXT" != "$OLD" ]; then
@@ -186,7 +186,7 @@ function delete {
 function transform {
   local BRANCH="$(current_branch)"
   local OLD="$(current_commit)"
-  git commit -a --amend --reuse-message="$OLD"
+  git commit -a --amend --allow-empty --reuse-message="$OLD"
   local NEW="$(current_commit)"
   
   # unsafe version of rewrite_history, which will
