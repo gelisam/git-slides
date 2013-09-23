@@ -5,7 +5,7 @@ function usage {
   echo "usage:"
   echo "  $0 next [-f|--force]"
   echo "  $0 prev [-f|--force]"
-  echo "  $0 save"
+  echo "  $0 save [msg]"
   echo "  $0 insert [msg]"
   echo "  $0 insert-before [msg]"
   echo "  $0 delete"
@@ -120,10 +120,15 @@ function rewrite_history {
 }
 
 function save {
+  local MSG="$1"
   local BRANCH="$(current_branch)"
   local OLD="$(current_commit)"
   local NEXT="$(next_commit)"
-  git commit -a --amend --allow-empty --reuse-message="$OLD"
+  if [ "$MSG" ]; then
+    git commit -a --amend --allow-empty -m"$MSG"
+  else
+    git commit -a --amend --allow-empty --reuse-message="$OLD"
+  fi
   local NEW="$(current_commit)"
   
   if [ "$NEXT" != "$OLD" ]; then
@@ -211,7 +216,7 @@ if [ "$1" = "next" ]; then
 elif [ "$1" = "prev" ]; then
   move_to "$(prev_commit)" "$2"
 elif [ "$1" = "save" ]; then
-  save
+  save "$2"
 elif [ "$1" = "insert" ] || [ "$1" = "insert-after" ]; then
   if [ "$2" ]; then
     insert_after "$2"
