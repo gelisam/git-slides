@@ -111,7 +111,7 @@ function rewrite_history {
   
   # force rebase to succeed by duplicating $FUTURE.
   git reset "$FUTURE" -- . || true
-  git commit --reuse-message="$FUTURE"
+  git commit --allow-empty --reuse-message="$FUTURE"
   git reset --hard
   local DUP="$(current_commit)"
   
