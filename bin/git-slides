@@ -1,45 +1,52 @@
 #!/bin/bash
+#
+# Git-Slides v1.1 {2013-10-09}
+# Coded by Gelisam <http://gelisam.com>
+# Edited by TuxLyn <http://gotux.net>
+#
+
 set -e
 
-function usage {
-  echo "usage:"
-  echo "  $0 next [-f|--force]"
-  echo "  $0 prev [-f|--force]"
-  echo "  $0 save [msg]"
-  echo "  $0 insert [msg]"
-  echo "  $0 insert-before [msg]"
-  echo "  $0 delete"
-  echo "  $0 transform"
-  echo ""
-  echo "Move forwards or backwards through the git history."
-  echo "Use --force to do so even if the files have been changed."
-  echo ""
-  echo "To modify a slide, simply move to that slide and edit it."
-  echo "Then use 'save' to commit the state of the slide into git."
-  echo "'insert' is a variant which inserts the slide after the one"
-  echo "it was modified from, while 'delete' removes the current"
-  echo "slide. All commands rewrite the history of all the slides"
-  echo "which come afterwards."
-  echo ""
-  echo "'transform' is a special version of 'save' which tries to"
-  echo "apply the change to all future slides, stopping at the"
-  echo "first conflict."
-}
+usage() {
+printf "Git-Slides v1.1 {2013-10-09}
+usage:
+  $0 next [-f|--force]
+  $0 prev [-f|--force]
+  $0 save [msg]
+  $0 insert [msg]
+  $0 insert-before [msg]
+  $0 delete
+  $0 transform
+
+Move forwards or backwards through the git history.
+Use --force to do so even if the files have been changed.
+
+To modify a slide, simply move to that slide and edit it.
+Then use 'save' to commit the state of the slide into git.
+'insert' is a variant which inserts the slide after the one
+it was modified from, while 'delete' removes the current
+slide. All commands rewrite the history of all the slides
+which come afterwards.
+
+'transform' is a special version of 'save' which tries to
+apply the change to all future slides, stopping at the
+first conflict.\n"
+} #usage
 
 # "commit 12345" => "12345"
-function cut_commit {
+cut_commit() {
   cut -d' ' -f2
-}
+} #cut_commit
 
-function current_commit {
+current_commit() {
   git log HEAD | head -n1 | cut_commit
-}
+} #current_commit
 
-function branches {
+branches() {
   git branch | grep -v '(no branch)' | cut -c3-
-}
+} #branches
 
-function current_branch {
+current_branch() {
   local CURRENT="$(current_commit)"
   for BRANCH in `branches`; do
     if [ "$(git log "$BRANCH" | grep "^commit $CURRENT")" ]; then
@@ -47,27 +54,27 @@ function current_branch {
       break
     fi
   done
-}
+} #current_branch
 
-function commits {
+commits() {
   git log "$(current_branch)" | grep '^commit'
-}
+} #commits
 
-function current_tip {
+current_tip() {
   commits | head -n1 | cut_commit
-}
+} #current_tip
 
-function next_commit {
+next_commit() {
   local CURRENT="$(current_commit)"
   commits | grep -B1 "^commit $CURRENT" | head -n1 | cut_commit
-}
+} #next_commit
 
-function prev_commit {
+prev_commit() {
   local CURRENT="$(current_commit)"
   commits | grep -A1 "^commit $CURRENT" | tail -n1 | cut_commit
-}
+} #prev_commit
 
-function move_to {
+move_to() {
   if [ "$2" = "-f" ] || [ "$2" = "--force" ]; then
     git reset --hard
   fi
@@ -76,17 +83,17 @@ function move_to {
   else
     git checkout "$1"
   fi
-}
+} #move_to
 
-function next {
+next() {
   move_to "$(next_commit)"
-}
+} #next
 
-function prev {
+prev() {
   move_to "$(prev_commit)"
-}
+} #prev
 
-function duplicate {
+duplicate() {
   local MSG="$1"
   local BRANCH="$(current_branch)"
   local CURRENT="$(current_commit)"
@@ -101,11 +108,11 @@ function duplicate {
   # move to this new commit (whose SHA1 is no longer $DUP)
   git checkout -f "$CURRENT"
   next
-}
+} #duplicate
 
 # rewrite history so that the current commit is followed by $FUTURE,
 # then the rest of $BRANCH. $FUTURE must already belong to $BRANCH.
-function rewrite_history {
+rewrite_history() {
   local FUTURE="$1"
   local BRANCH="$2"
   
@@ -117,9 +124,9 @@ function rewrite_history {
   
   # rewrite history to include $DUP instead of $FUTURE.
   git rebase --onto "$DUP" "$FUTURE" "$BRANCH"
-}
+} #rewrite_history
 
-function save {
+save() {
   local MSG="$1"
   local BRANCH="$(current_branch)"
   local OLD="$(current_commit)"
@@ -138,9 +145,9 @@ function save {
     # move to the saved commit.
     git checkout -f "$NEW"
   fi
-}
+} #save
 
-function insert_before {
+insert_before() {
   local MSG="$1"
   local BRANCH="$(current_branch)"
   local PREV="$(current_commit)"
@@ -152,9 +159,9 @@ function insert_before {
   
   # move to the inserted commit.
   git checkout -f "$NEW"
-}
+} #insert_before
 
-function insert_after {
+insert_after() {
   local MSG="$1"
   local BRANCH="$(current_branch)"
   local PREV="$(current_commit)"
@@ -169,9 +176,9 @@ function insert_after {
     # move to the inserted commit.
     git checkout -f "$NEW"
   fi
-}
+} #insert_after
 
-function delete {
+delete() {
   if [ "$(current_commit)" = "$(current_tip)" ]; then
     git reset --hard HEAD^
   else
@@ -186,9 +193,9 @@ function delete {
     # move to the commit before the one we deleted.
     git checkout -f "$PREV"
   fi
-}
+} #delete
 
-function transform {
+transform() {
   local BRANCH="$(current_branch)"
   local OLD="$(current_commit)"
   git commit -a --amend --allow-empty --reuse-message="$OLD"
@@ -209,31 +216,19 @@ function transform {
     # move to the last successfully-modified commit.
     git checkout -f "$STOP"
   fi
-}
+} #transform
 
-if [ "$1" = "next" ]; then
-  move_to "$(next_commit)" "$2"
-elif [ "$1" = "prev" ]; then
-  move_to "$(prev_commit)" "$2"
-elif [ "$1" = "save" ]; then
-  save "$2"
-elif [ "$1" = "insert" ] || [ "$1" = "insert-after" ]; then
-  if [ "$2" ]; then
-    insert_after "$2"
-  else
-    insert_after "new slide"
-  fi
-elif [ "$1" = "insert-before" ]; then
-  if [ "$2" ]; then
-    insert_before "$2"
-  else
-    insert_before "new slide"
-  fi
-elif [ "$1" = "delete" ]; then
-  delete
-elif [ "$1" = "transform" ]; then
-  transform
-else
-  usage
-  exit 1
-fi
+switch "$1" in
+  next) move_to "$(next_commit)" "$2" ;;
+  prev) move_to "$(prev_commit)" "$2" ;;
+  save) save "$2" ;;
+  insert|insert-after)
+    [ "$2" ] && insert_after "$2" || insert_after "new slide" ;;
+  insert-before)
+    [ "$2" ] && insert_before "$2" || insert_before "new slide" ;;
+  delete) delete ;;
+  transform) transform ;;
+  *) usage; exit 1 ;;
+esac
+
+#EOF: git-slides
