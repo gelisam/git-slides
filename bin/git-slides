@@ -69,6 +69,7 @@ function prev_commit {
 
 function move_to {
   if [ "$2" = "-f" ] || [ "$2" = "--force" ]; then
+    git clean -df
     git reset --hard
   fi
   if [ "$1" = "$(current_tip)" ]; then
