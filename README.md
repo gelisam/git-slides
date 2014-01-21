@@ -18,5 +18,5 @@ Especially useful for live demos with a lot of canned code, which you want to pr
 Installation
 ------------
 
-Copy `vim/plugin/git-slides.vim` to your `~/.vim/plugin`
+Copy `plugin/git-slides.vim` to your `~/.vim/plugin`
 folder, and put `bin/git-slides` somewhere on your path.
