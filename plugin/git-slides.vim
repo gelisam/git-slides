@@ -1,3 +1,5 @@
+:set nofoldenable
+
 :nmap <Space> :wa<CR>:call system("git-slides next")<CR>:e!<CR>
 :nmap <Backspace> :wa<CR>:call system("git-slides prev")<CR>:e!<CR>
 :nmap sl :wa<CR>:call system("git-slides next")<CR>:e!<CR>
