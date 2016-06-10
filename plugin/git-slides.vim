@@ -9,3 +9,4 @@
 :nmap sa :wa<CR>:call system("git-slides insert-after")<CR>:e!<CR>
 :nmap st :wa<CR>:call system("git-slides transform")<CR>:e!<CR>
 :nmap sd :wa<CR>:call system("git-slides delete")<CR>:e!<CR>
+:nmap sr :!./%<CR>
