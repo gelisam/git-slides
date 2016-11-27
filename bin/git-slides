@@ -36,7 +36,7 @@ function current_commit {
 }
 
 function branches {
-  git branch | grep -v '(no branch)' | grep -v '(detached from' | cut -c3-
+  git branch | grep -v '(no branch)' | grep -v '(detached from' | grep -v '(HEAD detached' | cut -c3-
 }
 
 function current_branch {
