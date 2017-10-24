@@ -16,8 +16,7 @@ Especially useful for live demos with a lot of canned code, which you want to pr
 
 You only need one file. That file will be your slides (notice the plural). Each
 change and save will create a new commit. Moving back and forth between slides
-will checkout the current working directory to the previous commit and next
-commit respectively and reload the buffer in vim.
+will checkout the previous or next commit respectively and reload the buffer in vim.
 
 Installation
 ------------
@@ -26,7 +25,7 @@ Installation
 ```vimscript
 Plug 'gelisam/git-slides'
 ```
-2. Put [git-slides.sh](bin/git-slides) in your path. For example if you installed with `vim-plug`:
+2. Put [git-slides](bin/git-slides) in your path. For example if you installed with `vim-plug`:
 
 ```text
 $ cd <destination-dir> && \
@@ -43,18 +42,18 @@ Mappings
 The default mappings are:
 
 ```vimscript
-  nmap <Space> <Plug>GitSlidesNext " next slide
-  nmap <Backspace> <Plug>GitSlidesPrevious " previous slide
-  nmap sl <Plug>GitSlidesNext " next slide 
-  nmap sh <Plug>GitSlidesPrevious " previous slide
-  nmap sL <Plug>GitSlidesNextForce " next slide discarding changes
-  nmap sH <Plug>GitSildesPreviousForce " previous slide discarding changes
-  nmap ss <Plug>GitSlidesSave " alter the current slide and save
-  nmap sb <Plug>GitSlidesInsertBefore " insert changes as a new slide before the current slide
-  nmap sa <Plug>GitSlidesInsertAfter " insert changes as a new slide after the current slide
-  nmap st <Plug>GitSlidesTransform " apply changes to all future slides stopping at the first conflict
-  nmap sd <Plug>GitSlidesDelete " Delete the current slide
-  nmap sr <Plug>GitSlidesExecute " Run the current slide as a command. (useful for command line scripts)
+  nnoremap <Backspace> :wa<CR>:call system("git-slides prev")<CR>:e!<CR> " previous slide
+  nnoremap <Space> :wa<CR>:call system("git-slides next")<CR>:e!<CR> " next slide
+  nnoremap sl :wa<CR>:call system("git-slides next")<CR>:e!<CR> " next slide
+  nnoremap sh :wa<CR>:call system("git-slides prev")<CR>:e!<CR> " previous slide
+  nnoremap sL :call system("git-slides next -f")<CR>:e!<CR> " next slide discarding changes
+  nnoremap sH :call system("git-slides prev -f")<CR>:e!<CR> " previous slide discarding changes
+  nnoremap ss :wa<CR>:call system("git-slides save")<CR>:e!<CR> " alter the current slide and save
+  nnoremap sb :wa<CR>:call system("git-slides insert-before")<CR>:e!<CR> " insert changes as a new slide before the current slide
+  nnoremap sa :wa<CR>:call system("git-slides insert-after")<CR>:e!<CR> " insert changes as a new slide after the current slide
+  nnoremap st :wa<CR>:call system("git-slides transform")<CR>:e!<CR> " apply changes to all future slides stopping at the first conflict
+  nnoremap sd :wa<CR>:call system("git-slides delete")<CR>:e!<CR> " Delete the current slide
+  nnoremap sr :!./%<CR " Run the current slide as a command. (useful for command line scripts)>
 ```
 
 If you would like to set your own mappings, put this in your `.vimrc`:
