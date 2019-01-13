@@ -206,8 +206,8 @@ function transform {
   if ! git rebase --onto "$NEW" "$OLD" "$BRANCH"; then
     # resolve conflicts by ignoring "our" changes,
     # thereby stopping their propagation.
-    local DELETED_FILES="$(git status | grep "^#	deleted by them:" | cut -d':' -f2)"
-    local ADDED_FILES="$(git status | grep "^#	added by us:" | cut -d':' -f2)"
+    local DELETED_FILES="$(git status --porcelain | grep "^UD " | cut -d' ' -f2)"
+    local ADDED_FILES="$(git status --porcelain | grep "^AU " | cut -d' ' -f2)"
     if [ "$DELETED_FILES" ]; then
       echo "$DELETED_FILES" | xargs git rm -f
     fi
