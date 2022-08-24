@@ -116,6 +116,9 @@ function rewrite_history {
   local BRANCH="$2"
   
   # force rebase to succeed by duplicating $FUTURE.
+  # note that the syntax is COMMIT^{tree}, so
+  # "$FUTURE^{tree}" means the tree from $FUTURE,
+  # not from $FUTURE^.
   local MSG="$(commit_message "$FUTURE")"
   local TREE="$FUTURE^{tree}"
   local PARENT="$(current_commit)"
@@ -151,6 +154,10 @@ function insert_before {
   local MSG="$1"
   local BRANCH="$(current_branch)"
   local PREV="$(current_commit)"
+  
+  # detach from branch, so we don't accidentally add
+  # commits to it. rewrite_history will do that.
+  git checkout "$PREV"
   git commit -a --amend --allow-empty -m "$MSG"
   local NEW="$(current_commit)"
   
