@@ -224,7 +224,7 @@ function transform {
     git checkout --theirs .
     git add -u
     local STOP="$(current_commit)"
-    git rebase --continue
+    EDITOR=true git rebase --continue
     
     # move to the last successfully-modified commit.
     git checkout -f "$STOP"
